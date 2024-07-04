@@ -1,0 +1,29 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>step7</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>Apply Step7</name>
+
+    <vendor email="pyzhang086@gmail.com"> </vendor>
+
+    <description><![CDATA[
+    This plugin that substitute the API of the current Java file with provided API.
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    //com.intellij.java
+    <depends>com.intellij.java</depends>
+
+    <actions>
+        <action id="Change API" class="step7" text="Change API"
+                description="This plugin that substitute the API of the current Java file with provided API.">
+            <add-to-group group-id="EditMenu" anchor="last"/>
+            <keyboard-shortcut first-keystroke="control alt E" keymap="$default"/>
+        </action>
+    </actions>
+
+
+</idea-plugin>

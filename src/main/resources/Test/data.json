@@ -1,0 +1,44 @@
+{
+  "apis": [
+    {
+      "oldName": "color1",
+      "newName": "color2",
+      "oldApiParams": [
+        0,
+        255,
+        0,
+        255
+      ],
+      "newApiParams": [
+        120,
+        0.5,
+        1.0,
+        1.0
+      ],
+      "impactedCodeRange": "L1"
+    }
+
+  ],
+  "tests": [
+    {
+      "name": "color1",
+      "oldTest": "let c = color1(0, 255, 0, 255);",
+      "newTest": "let c = color2(120, 0.5, 1.0, 1.0);"
+    },
+    {
+      "name": "toHwbString1",
+      "oldTest": "assertEqual(c.toHwbString1(), \"hwb(120deg, 0%, 0%, 100%)\");",
+      "newTest": "assertTrue(c.toHwbString2() == \"hwb(120deg 0% 0% / 100%)\");"
+    },
+    {
+      "name": "getAlpha1",
+      "oldTest": [
+        "assertTrue(c.getAlpha1() >= 0 && c.getAlpha1() <= 255);"
+      ],
+      "newTest": [
+        "assertTrue(c.getAlpha2() >= 0.0 && c.getAlpha2() <= 1.0);",
+        "let a = int(round(c.getAlpha2() * 255)) / 2.55;"
+      ]
+    }
+  ]
+}
