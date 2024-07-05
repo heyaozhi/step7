@@ -32,7 +32,7 @@
         "c"
       ],
       "oldApiParams": [
-        1,2,3
+
       ],
       "oldReturn": "getAlpha1",
 
@@ -41,7 +41,7 @@
           "c"
       ],
       "newApiParams": [
-        1,2,3,4
+
       ],
       "newReturn": "(int) (round(c.getAlpha2 * 255)) / 2.55",
       "lineNumber": 6
