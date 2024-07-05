@@ -2,12 +2,20 @@
   "apis": [
     {
       "oldName": "color1",
-      "newName": "color2",
+      "oldPreParams": [
+
+      ],
       "oldApiParams": [
         0,
         255,
         0,
         255
+      ],
+      "oldReturn": "color1",
+
+      "newName": "color2",
+      "newPreParams": [
+
       ],
       "newApiParams": [
         120,
@@ -15,7 +23,28 @@
         1.0,
         1.0
       ],
-      "impactedCodeRange": "L1"
+      "newReturn": "color2",
+      "lineNumber": 3
+    },
+    {
+      "oldName": "getAlpha1",
+      "oldPreParams": [
+        "c"
+      ],
+      "oldApiParams": [
+        1,2,3
+      ],
+      "oldReturn": "getAlpha1",
+
+      "newName": "getAlpha2",
+      "newPreParams": [
+          "c"
+      ],
+      "newApiParams": [
+        1,2,3,4
+      ],
+      "newReturn": "(int) (round(c.getAlpha2 * 255)) / 2.55",
+      "lineNumber": 6
     }
 
   ],

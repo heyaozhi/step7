@@ -15,6 +15,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
+
+import static com.intellij.debugger.impl.DebuggerUtilsEx.getLineNumber;
 
 public class step7 extends AnAction {
 
@@ -36,7 +39,7 @@ public class step7 extends AnAction {
                 //System.out.println("Loaded configuration data: " + configData);
                 for (PsiClass cls : classes) {
                     //System.out.println("Processing class: " + cls.getName());
-                    replaceAPICallsInClass(cls);
+                    replaceAPICallsInClass(cls,psiFile);
                 }
             });
 
@@ -46,7 +49,7 @@ public class step7 extends AnAction {
         }
     }
 
-    private void replaceAPICallsInClass(PsiClass cls) {
+    private void replaceAPICallsInClass(PsiClass cls, PsiFile psiFile) {
         cls.accept(new JavaRecursiveElementVisitor() {
             @Override
             public void visitMethodCallExpression(@NotNull PsiMethodCallExpression expression) {
@@ -67,31 +70,42 @@ public class step7 extends AnAction {
                     JsonObject api = apis.get(i).getAsJsonObject();
                     String oldAPI = api.get("oldName").getAsString();
                     String newAPI = api.get("newName").getAsString();
-                    JsonArray oldAPIParams = api.getAsJsonArray("oldApiParams");
-                    JsonArray newAPIParams = api.getAsJsonArray("newApiParams");
-
                     if (oldAPI == null) {
                         continue;
                     }
-
                     if (methodName.equals(oldAPI)) {
-                        // Check if the arguments match the old API parameters
-                        PsiExpression[] arguments = expression.getArgumentList().getExpressions();
-                        if (arguments.length == oldAPIParams.size()) {
-                            boolean argsMatch = true;
-                            for (int j = 0; j < arguments.length; j++) {
-                                PsiExpression arg = arguments[j];
-                                int oldParam = oldAPIParams.get(j).getAsInt();
-                                if (!arg.getText().equals(String.valueOf(oldParam))) {
-                                    argsMatch = false;
+                        int lineNumber=api.get("lineNumber").getAsInt();
+                        if(getLineNumber(expression,psiFile) == lineNumber){
+                            JsonArray oldAPIParams = api.getAsJsonArray("oldApiParams");
+                            JsonArray newAPIParams = api.getAsJsonArray("newApiParams");
+
+                            JsonArray oldPreParams = api.getAsJsonArray("oldPreParams");
+                            String oldReturn = api.get("oldReturn").getAsString();
+
+                            JsonArray newPreParams = api.getAsJsonArray("newPreParams");
+                            String newReturn = api.get("newReturn").getAsString();
+
+                            // Check if the arguments match the old API parameters
+                            PsiExpression[] arguments = expression.getArgumentList().getExpressions();
+
+                            if (arguments.length == oldAPIParams.size()) {
+
+                                boolean argsMatch = true;
+                                for (int j = 0; j < arguments.length; j++) {
+                                    PsiExpression arg = arguments[j];
+                                    int oldParam = oldAPIParams.get(j).getAsInt();
+                                    if (!arg.getText().equals(String.valueOf(oldParam))) {
+                                        argsMatch = false;
+                                        break;
+                                    }
+                                }
+
+                                if (argsMatch) {
+                                    // Replace the method call with the new API
+                                    System.out.println("expression: " + expression);
+                                    replaceWithNewAPI(expression, newAPI, newAPIParams,newReturn,newPreParams);
                                     break;
                                 }
-                            }
-
-                            if (argsMatch) {
-                                // Replace the method call with the new API
-                                replaceWithNewAPI(expression, newAPI, newAPIParams);
-                                break;
                             }
                         }
                     }
@@ -100,8 +114,9 @@ public class step7 extends AnAction {
         });
     }
 
-    private void replaceWithNewAPI(PsiMethodCallExpression expression, String newAPI, JsonArray newAPIParams) {
+    private void replaceWithNewAPI(PsiMethodCallExpression expression, String newAPI, JsonArray newAPIParams, String newReturn, JsonArray newPreParams) {
         PsiElementFactory factory = PsiElementFactory.getInstance(expression.getProject());
+
         StringBuilder newArguments = new StringBuilder();
         for (int i = 0; i < newAPIParams.size(); i++) {
             if (i > 0) {
@@ -109,8 +124,15 @@ public class step7 extends AnAction {
             }
             newArguments.append(newAPIParams.get(i).getAsString());
         }
-        PsiMethodCallExpression newExpression = (PsiMethodCallExpression) factory.createExpressionFromText(
-                newAPI + "(" + newArguments + ")", expression);
+
+
+
+        String replacedReturn = newReturn.replace(newAPI, newAPI + "(" + newArguments + ")");
+        System.out.println("replacedReturn: " + replacedReturn);
+        System.out.println("expression: " + expression);
+        PsiExpression newExpression = (PsiExpression) factory.createExpressionFromText(
+                replacedReturn, expression);
+
         expression.replace(newExpression);
     }
 
@@ -124,4 +146,8 @@ public class step7 extends AnAction {
         }
     }
 
+    private int getLineNumber(PsiElement element, PsiFile psiFile) {
+        int offset = element.getTextOffset();
+        return psiFile.getViewProvider().getDocument().getLineNumber(offset) + 1;
+    }
 }
