@@ -128,8 +128,8 @@ public class step7 extends AnAction {
 
 
         String replacedReturn = newReturn.replace(newAPI, newAPI + "(" + newArguments + ")");
-        System.out.println("replacedReturn: " + replacedReturn);
-        System.out.println("expression: " + expression);
+        //System.out.println("replacedReturn: " + replacedReturn);
+        //System.out.println("expression: " + expression);
         PsiExpression newExpression = (PsiExpression) factory.createExpressionFromText(
                 replacedReturn, expression);
 
