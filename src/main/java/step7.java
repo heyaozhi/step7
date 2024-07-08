@@ -1,7 +1,9 @@
 import com.github.weisj.jsvg.S;
 import com.google.gson.JsonArray;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -89,7 +91,15 @@ public class step7 extends AnAction {
                             PsiExpression[] arguments = expression.getArgumentList().getExpressions();
 
                             if (arguments.length == oldAPIParams.size()) {
+                                Document document = psiFile.getViewProvider().getDocument();
+                                int line = 4;
+                                int lineStartOffset = document.getLineStartOffset(line);
+                                int lineEndOffset = document.getLineEndOffset(line);
 
+                                PsiElement lineElement = psiFile.findElementAt(lineStartOffset);
+
+
+                                String lineText = document.getText(TextRange.create(lineStartOffset, lineEndOffset));
                                 boolean argsMatch = true;
                                 for (int j = 0; j < arguments.length; j++) {
                                     PsiExpression arg = arguments[j];
