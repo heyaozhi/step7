@@ -45,6 +45,46 @@
       ],
       "newReturn": "(int) (round(c.getAlpha2 * 255)) / 2.55",
       "lineNumber": 6
+    },
+    {
+      "oldName": "toHwbString1",
+      "oldPreParams": [
+          "c"
+      ],
+        "oldApiParams": [
+
+        ],
+        "oldReturn": "toHwbString1",
+
+        "newName": "toHwbString2",
+        "newPreParams": [
+            "c"
+        ],
+        "newApiParams": [
+
+        ],
+        "newReturn": "toHwbString2",
+        "lineNumber": 4
+    },
+    {
+        "oldName": "getAlpha1",
+        "oldPreParams": [
+            "c"
+        ],
+        "oldApiParams": [
+
+        ],
+        "oldReturn": "getAlpha1",
+
+        "newName": "getAlpha2",
+        "newPreParams": [
+            "c"
+        ],
+        "newApiParams": [
+
+        ],
+        "newReturn": "(int) (round(c.getAlpha2 * 255)) / 2.55",
+        "lineNumber": 5
     }
 
   ],

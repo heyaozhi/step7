@@ -29,6 +29,9 @@ tasks {
         untilBuild.set("241.*")
     }
 }
+
 dependencies {
     implementation(kotlin("script-runtime"))
+    implementation("org.matheclipse:matheclipse-core:2.0.0")
+
 }

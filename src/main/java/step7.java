@@ -1,9 +1,8 @@
+
 import com.github.weisj.jsvg.S;
 import com.google.gson.JsonArray;
 import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -12,14 +11,10 @@ import com.intellij.openapi.ui.Messages;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import net.minidev.json.JSONArray;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
-
-import static com.intellij.debugger.impl.DebuggerUtilsEx.getLineNumber;
 
 public class step7 extends AnAction {
 
@@ -134,7 +129,7 @@ public class step7 extends AnAction {
         });
     }
 
-    private void replaceWithNewAPI(PsiMethodCallExpression expression, String newAPI, JsonArray newAPIParams, String newReturn, JsonArray newPreParams) {
+        private void replaceWithNewAPI(PsiMethodCallExpression expression, String newAPI, JsonArray newAPIParams, String newReturn, JsonArray newPreParams) {
         PsiElementFactory factory = PsiElementFactory.getInstance(expression.getProject());
 
         StringBuilder newArguments = new StringBuilder();
@@ -146,12 +141,12 @@ public class step7 extends AnAction {
         }
 
 
-
+        System.out.println("expression: " + expression);
         String replacedReturn = newReturn.replace(newAPI, newAPI + "(" + newArguments + ")");
-        //System.out.println("replacedReturn: " + replacedReturn);
-        //System.out.println("expression: " + expression);
+        System.out.println("replacedReturn: " + replacedReturn);
         PsiExpression newExpression = (PsiExpression) factory.createExpressionFromText(
                 replacedReturn, expression);
+        System.out.println("newExpression: " + newExpression);
 
         expression.replace(newExpression);
     }
