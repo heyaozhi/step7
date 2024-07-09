@@ -61,60 +61,70 @@ public class step7 extends AnAction {
                 if (methodName == null) {
                     return;
                 }
-
-                // Check if the method name matches any of the configured replacements
-                JsonArray apis = configData.getAsJsonArray("apis");
-
-                for (int i = 0; i < apis.size(); i++) {
-                    if (apis.get(i) == null) {
-                        continue;
+                if(methodName.equals("assertEquals")){
+                   //change assertEquals(a,b) to assertTrue(a.equals(b))
+                    PsiElementFactory factory = PsiElementFactory.getInstance(expression.getProject());
+                    PsiExpression[] arguments = expression.getArgumentList().getExpressions();
+                    if (arguments.length == 2) {
+                        PsiExpression arg1 = arguments[0];
+                        PsiExpression arg2 = arguments[1];
+                        String replacedReturn = "assertTrue(" + arg1.getText() + ".equals(" + arg2.getText() + "))";
+                        PsiExpression newExpression = (PsiExpression) factory.createExpressionFromText(
+                                replacedReturn, expression);
+                        expression.replace(newExpression);
                     }
-                    JsonObject api = apis.get(i).getAsJsonObject();
-                    String oldAPI = api.get("oldName").getAsString();
-                    String newAPI = api.get("newName").getAsString();
-                    if (oldAPI == null) {
-                        continue;
-                    }
-                    if (methodName.equals(oldAPI)) {
-                        int lineNumber=api.get("lineNumber").getAsInt();
-                        if(getLineNumber(expression,psiFile) == lineNumber){
-                            JsonArray oldAPIParams = api.getAsJsonArray("oldApiParams");
-                            JsonArray newAPIParams = api.getAsJsonArray("newApiParams");
+                }
+                else {
+                    // Check if the method name matches any of the configured replacements
+                    JsonArray apis = configData.getAsJsonArray("apis");
 
-                            JsonArray oldPreParams = api.getAsJsonArray("oldPreParams");
-                            String oldReturn = api.get("oldReturn").getAsString();
+                    for (int i = 0; i < apis.size(); i++) {
+                        if (apis.get(i) == null) {
+                            continue;
+                        }
+                        JsonObject api = apis.get(i).getAsJsonObject();
+                        String oldAPI = api.get("oldName").getAsString();
+                        String newAPI = api.get("newName").getAsString();
+                        if (oldAPI == null) {
+                            continue;
+                        }
+                        if (methodName.equals(oldAPI)) {
+                            int lineNumber = api.get("lineNumber").getAsInt();
+                            if (getLineNumber(expression, psiFile) == lineNumber) {
+                                JsonArray oldAPIParams = api.getAsJsonArray("oldApiParams");
+                                JsonArray newAPIParams = api.getAsJsonArray("newApiParams");
 
-                            JsonArray newPreParams = api.getAsJsonArray("newPreParams");
-                            String newReturn = api.get("newReturn").getAsString();
+                                JsonArray oldPreParams = api.getAsJsonArray("oldPreParams");
+                                String oldReturn = api.get("oldReturn").getAsString();
 
-                            // Check if the arguments match the old API parameters
-                            PsiExpression[] arguments = expression.getArgumentList().getExpressions();
+                                JsonArray newPreParams = api.getAsJsonArray("newPreParams");
+                                String newReturn = api.get("newReturn").getAsString();
 
-                            if (arguments.length == oldAPIParams.size()) {
-                                Document document = psiFile.getViewProvider().getDocument();
+                                // Check if the arguments match the old API parameters
+                                PsiExpression[] arguments = expression.getArgumentList().getExpressions();
+
+                                if (arguments.length == oldAPIParams.size()) {
+                                /*Document document = psiFile.getViewProvider().getDocument();
                                 int line = 4;
                                 int lineStartOffset = document.getLineStartOffset(line);
                                 int lineEndOffset = document.getLineEndOffset(line);
+                                PsiElement lineElement = psiFile.findElementAt(lineStartOffset);*/
+                                    boolean argsMatch = true;
+                                    for (int j = 0; j < arguments.length; j++) {
+                                        PsiExpression arg = arguments[j];
+                                        int oldParam = oldAPIParams.get(j).getAsInt();
+                                        if (!arg.getText().equals(String.valueOf(oldParam))) {
+                                            argsMatch = false;
+                                            break;
+                                        }
+                                    }
 
-                                PsiElement lineElement = psiFile.findElementAt(lineStartOffset);
-
-
-                                String lineText = document.getText(TextRange.create(lineStartOffset, lineEndOffset));
-                                boolean argsMatch = true;
-                                for (int j = 0; j < arguments.length; j++) {
-                                    PsiExpression arg = arguments[j];
-                                    int oldParam = oldAPIParams.get(j).getAsInt();
-                                    if (!arg.getText().equals(String.valueOf(oldParam))) {
-                                        argsMatch = false;
+                                    if (argsMatch) {
+                                        // Replace the method call with the new API
+                                        System.out.println("expression: " + expression);
+                                        replaceWithNewAPI(expression, newAPI, newAPIParams, newReturn, newPreParams);
                                         break;
                                     }
-                                }
-
-                                if (argsMatch) {
-                                    // Replace the method call with the new API
-                                    System.out.println("expression: " + expression);
-                                    replaceWithNewAPI(expression, newAPI, newAPIParams,newReturn,newPreParams);
-                                    break;
                                 }
                             }
                         }
