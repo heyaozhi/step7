@@ -16,6 +16,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.FileReader;
 import java.io.IOException;
 
+
+
 public class step7 extends AnAction {
 
     //import a file that tells how to substitute one expression with another
@@ -116,8 +118,9 @@ public class step7 extends AnAction {
 
                                     if (argsMatch) {
                                         // Replace the method call with the new API
-                                        System.out.println("expression: " + expression);
-                                        replaceWithNewAPI(expression, newAPI, newAPIParams, newReturn, newPreParams);
+                                        PsiElement parentExpression = expression.getParent();
+                                        replaceWithNewAPI(expression, newAPI, newAPIParams, newReturn, newPreParams,parentExpression);
+
                                         break;
                                     }
                                 }
@@ -129,7 +132,7 @@ public class step7 extends AnAction {
         });
     }
 
-        private void replaceWithNewAPI(PsiMethodCallExpression expression, String newAPI, JsonArray newAPIParams, String newReturn, JsonArray newPreParams) {
+    private void replaceWithNewAPI(PsiMethodCallExpression expression, String newAPI, JsonArray newAPIParams, String newReturn, JsonArray newPreParams,PsiElement parentElement) {
         PsiElementFactory factory = PsiElementFactory.getInstance(expression.getProject());
 
         StringBuilder newArguments = new StringBuilder();
@@ -139,18 +142,28 @@ public class step7 extends AnAction {
             }
             newArguments.append(newAPIParams.get(i).getAsString());
         }
-
-
-        System.out.println("expression: " + expression);
+        //System.out.println("expression: " + expression);
         String replacedReturn = newReturn.replace(newAPI, newAPI + "(" + newArguments + ")");
-        System.out.println("replacedReturn: " + replacedReturn);
+        //System.out.println("replacedReturn: " + replacedReturn);
         PsiExpression newExpression = (PsiExpression) factory.createExpressionFromText(
                 replacedReturn, expression);
-        System.out.println("newExpression: " + newExpression);
-
+        //System.out.println("newExpression: " + newExpression);
         expression.replace(newExpression);
+        System.out.println("parentExpression: " + parentElement);
+        if(parentElement instanceof PsiExpression){
+            simplifyExpression(parentElement);
+        }
     }
 
+
+    private void simplifyExpression(PsiElement parentElement) {
+        //use Smyja to simplify the expression
+        if (parentElement instanceof PsiExpression parent) {
+            PsiElementFactory factory = PsiElementFactory.getInstance(parentElement.getProject());
+            String parentText = parent.getText();
+
+        }
+    }
 
     private void loadConfigData() {
         try (FileReader reader = new FileReader(CONFIG_FILE_PATH)) {
