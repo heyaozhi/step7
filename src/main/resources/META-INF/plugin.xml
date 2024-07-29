@@ -20,7 +20,7 @@
         <action id="Change API" class="step7" text="Change API"
                 description="This plugin that substitute the API of the current Java file with provided API.">
             <add-to-group group-id="EditMenu" anchor="last"/>
-            <keyboard-shortcut first-keystroke="control alt E" keymap="$default"/>
+            <keyboard-shortcut first-keystroke="control alt H" keymap="$default"/>
         </action>
     </actions>
 
